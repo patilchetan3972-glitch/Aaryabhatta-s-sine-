@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aryabhata Sine Calculator</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            color: white;
+
+            /* Math grid background */
+            background-color: #0a0f1f;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .container {
+            background: rgba(0,0,0,0.75);
+            padding: 20px;
+            border-radius: 12px;
+            width: 70%;
+            margin: auto;
+        }
+
+        input {
+            padding: 10px;
+            width: 160px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 18px;
+            margin: 10px;
+            background: #ff9800;
+            border: none;
+            cursor: pointer;
+            color: white;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #e68900;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+            color: black;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        canvas {
+            background: white;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Aryabhata Sine Calculator</h1>
+
+    <div class="container">
+
+        <p>Enter angle (in degrees):</p>
+
+        <input type="number" id="angleInput" placeholder="e.g. 45">
+
+        <br>
+
+        <button onclick="calculateSine()">Calculate Sine</button>
+        <button onclick="generateTable()">Generate Table</button>
+
+        <h3 id="result"></h3>
+
+        <!-- Small Graph -->
+        <canvas id="sineChart" width="300" height="150"></canvas>
+
+        <!-- Table -->
+        <table id="sineTable">
+            <tr>
+                <th>Angle (°)</th>
+                <th>Sine Value</th>
+            </tr>
+        </table>
+
+    </div>
+
+    <script>
+        let chart; // global chart
+
+        function calculateSine() {
+            let angle = document.getElementById("angleInput").value;
+
+            if (angle === "") {
+                alert("Please enter an angle");
+                return;
+            }
+
+            angle = parseFloat(angle);
+
+            let radians = angle * (Math.PI / 180);
+            let sineValue = Math.sin(radians).toFixed(5);
+
+            document.getElementById("result").innerText =
+                "Sine(" + angle + "°) = " + sineValue;
+
+            drawGraph(angle);
+        }
+
+        function drawGraph(userAngle) {
+            let ctx = document.getElementById("sineChart").getContext("2d");
+
+            let labels = [];
+            let data = [];
+
+            let start = userAngle - 60;
+            let end = userAngle + 60;
+
+            for (let i = start; i <= end; i += 2) {
+                labels.push(i);
+                let radians = i * (Math.PI / 180);
+                data.push(Math.sin(radians));
+            }
+
+            // Remove old chart
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Sine Curve",
+                            data: data,
+                            borderColor: "blue",
+                            fill: false,
+                            tension: 0.3
+                        },
+                        {
+                            label: "Your Angle",
+                            data: labels.map(x =>
+                                x === userAngle ? Math.sin(userAngle * Math.PI / 180) : null
+                            ),
+                            borderColor: "red",
+                            pointRadius: 5,
+                            showLine: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        y: {
+                            min: -1,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateTable() {
+            let table = document.getElementById("sineTable");
+
+            table.innerHTML = `
+                <tr>
+                    <th>Angle (°)</th>
+                    <th>Sine Value</th>
+                </tr>
+            `;
+
+            for (let i = 0; i <= 360; i += 15) {
+                let radians = i * (Math.PI / 180);
+                let sineValue = Math.sin(radians).toFixed(5);
+
+                let row = table.insertRow();
+                row.insertCell(0).innerText = i;
+                row.insertCell(1).innerText = sineValue;
+            }
+        }
+    </script>
+
+</body>
+</html>
